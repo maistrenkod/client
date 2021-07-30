@@ -1,35 +1,26 @@
 package one.maistrenko.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 @Component("runner")
 @Slf4j
 public class Runner implements CommandLineRunner {
-    static final String URL = "http://localhost:8090/api/v1/user";
+    @Value("http://localhost:8090/api/v1/user")
+    static String URL;
+
+    private RestTemplate restTemplate = new RestTemplate();
+
     @Override
     public void run(String... args) throws Exception {
-
-        RestTemplate restTemplate = new RestTemplate();
 
         Scanner scanner = new Scanner(System.in);
         Scanner scanner1 = new Scanner(System.in);
@@ -38,19 +29,19 @@ public class Runner implements CommandLineRunner {
             System.out.println("Enter command:");
             switch (scanner.nextLine()){
                 case "create-user":
-                    createUser(scanner1, restTemplate);
+                    createUser(scanner1);
                     break;
                 case "update-user":
-                    updateUser(scanner1, scanner2, restTemplate);
+                    updateUser(scanner1, scanner2);
                     break;
                 case "remove-user":
-                    removeUser(scanner1, restTemplate);
+                    removeUser(scanner1);
                     break;
                 case "get-user":
-                    getUser(scanner1, restTemplate);
+                    getUser(scanner1);
                     break;
                 case "show-users":
-                    showAllUsers(restTemplate);
+                    showAllUsers();
                     break;
                 case "exit":
                     System.exit(0);
@@ -61,7 +52,7 @@ public class Runner implements CommandLineRunner {
 
     }
 
-    public static User createUser(Scanner scanner, RestTemplate restTemplate){
+    public User createUser(Scanner scanner){
         System.out.println("Enter username:");
         String username = scanner.nextLine();
         System.out.println("Enter password:");
@@ -75,7 +66,7 @@ public class Runner implements CommandLineRunner {
         return user1;
     }
 
-    public static User updateUser(Scanner scanner, Scanner scanner1, RestTemplate restTemplate){
+    public User updateUser(Scanner scanner, Scanner scanner1){
         System.out.println("Enter userid:");
         long userid = scanner1.nextLong();
         System.out.println("Enter username:");
@@ -91,13 +82,13 @@ public class Runner implements CommandLineRunner {
         return user1;
     }
 
-    public static void removeUser(Scanner scanner, RestTemplate restTemplate){
+    public void removeUser(Scanner scanner){
         System.out.println("Enter userid:");
         String userid = scanner.nextLine();
         restTemplate.delete(URL + "/" + userid);
     }
 
-    public static User getUser(Scanner scanner, RestTemplate restTemplate){
+    public User getUser(Scanner scanner){
         System.out.println("Enter userid:");
         String userid = scanner.nextLine();
         User user = restTemplate.getForObject(URL + "/" + userid, User.class);
@@ -105,7 +96,7 @@ public class Runner implements CommandLineRunner {
         return user;
     }
 
-    public static void showAllUsers(RestTemplate restTemplate){
+    public void showAllUsers(){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
         headers.setContentType(MediaType.APPLICATION_JSON);
